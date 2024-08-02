@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from "react";
 import Header from "./components/Header";
+import RecipeFull from "./components/RecipeFull";
 import RecipeExcerpt from "./components/RecipeExcerpt"
 import "./App.css";
 
 function App() {
-  const [recipes, setRecipes] = useState([])
+  const [recipes, setRecipes] = useState([]);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+
+  const handleSelectRecipe = (recipe) => {
+    setSelectedRecipe(recipe);
+  };
+
+  const handleUnselectRecipe = () => {
+    setSelectedRecipe(null);
+  };
 
   useEffect(() => {
     const fetchAllRecipes = async () => {
@@ -28,13 +38,19 @@ function App() {
   return (
     <div className='recipe-app'>
       <Header />
-      <div className="recipe-list">
+      {selectedRecipe && <RecipeFull
+        selectedRecipe={selectedRecipe}
+        handleUnselectRecipe={handleUnselectRecipe} />}
+      {!selectedRecipe && (<div className="recipe-list">
         {recipes.map((recipe) => (
-          <RecipeExcerpt key={recipe.id} recipe={recipe}/>
+          <RecipeExcerpt
+            key={recipe.id}
+            recipe={recipe}
+            handleSelectRecipe={handleSelectRecipe} />
         ))}
-      </div>
+      </div>)}
     </div>
-      );
+  );
 }
 
-      export default App;
+export default App;
