@@ -17,6 +17,7 @@ function App() {
     image_url: "https://images.pexels.com/photos/9986228/pexels-photo-9986228.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" //default
   })
   const [showNewRecipeForm, setShowNewRecipeForm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleSelectRecipe = (recipe) => {
     setSelectedRecipe(recipe);
@@ -139,10 +140,29 @@ function App() {
       console.error("Something went wrong during the request:", e);
     }
   }
+  
+  const updateSearchTerm = (text) => {
+    setSearchTerm(text);
+  }
+
+  const handleSearch = () => {
+    //filters through the existing recipes
+    const searchResults = recipes.filter((recipe) => {
+      //array with the values of each recipe we want to search through
+      const valuesToSearch = [recipe.title, recipe.ingredients, recipe.description];
+      //returns TRUE or FALSE if the value (title, ingredients, description) contain the search term
+      return valuesToSearch.some(value => value.toLowerCase().includes(searchTerm.toLowerCase()));
+    })
+    //if any of the values (title, ingredients, desciprion) DO contain the searchTerm, then that recipe will be part of the searchResults
+    return searchResults;
+  }
+
+  //if there is a search term then the handleSearch function will be triggered (resulting in searchResults) otherwise all recipes will show
+  const displayedRecipes = searchTerm ? handleSearch() : recipes;
 
   return (
     <div className='recipe-app'>
-      <Header showRecipeForm={showRecipeForm} />
+      <Header showRecipeForm={showRecipeForm} searchTerm={searchTerm} updateSearchTerm={updateSearchTerm} />
       {showNewRecipeForm &&
         <NewRecipeForm newRecipe={newRecipe}
           hideRecipeForm={hideRecipeForm}
@@ -156,7 +176,7 @@ function App() {
         handleUpdateRecipe={handleUpdateRecipe}
         handleDeleteRecipe={handleDeleteRecipe} />}
       {!selectedRecipe && !showNewRecipeForm && (<div className="recipe-list">
-        {recipes.map((recipe) => (
+        {displayedRecipes.map((recipe) => (
           <RecipeExcerpt
             key={recipe.id}
             recipe={recipe}
